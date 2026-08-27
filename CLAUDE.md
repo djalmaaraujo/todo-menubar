@@ -85,5 +85,10 @@ signal that the tap is still stale.
   New/rename/delete-workspace are drawn as an in-popover overlay card, not a sheet.
 - **The badge updates via Combine** — `AppDelegate` sinks `store.$state`/`$errorText`
   on `RunLoop.main` (so it reads the post-change value) and refreshes the button.
+- **Multi-line paste = one todo per line.** The input is a `PasteInterceptField`
+  (`NSTextField`, `usesSingleLineMode = true` so it never grows and overflows the
+  popover). A multi-line paste is caught in `performKeyEquivalent` (Cmd-V) and routed
+  straight to `addTodo` per line — it never lands in the single-line field. `TodoState.todoLines`
+  splits on `.newlines` (so `\r\n` counts once) and strips leading `- `/`* `/`• ` bullets.
 - **`Tests.swift` needs `@main` + `-parse-as-library`.** Top-level statements are
   rejected by `-parse-as-library`; the whole suite runs inside `TestRunner.main()`.

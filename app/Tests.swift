@@ -172,6 +172,10 @@ do {
     check(TodoState.todoLines(from: "  x  \n\n  y \n") == ["x", "y"], "trims and drops blank lines")
     check(TodoState.todoLines(from: "a\r\nb") == ["a", "b"], "handles CRLF")
     check(TodoState.todoLines(from: "   \n  ").isEmpty, "all-blank paste yields nothing")
+    check(TodoState.todoLines(from: "- Librechat") == ["Librechat"], "strips leading '- '")
+    check(TodoState.todoLines(from: "- a\n- b\n* c\n• d") == ["a", "b", "c", "d"], "strips dash/star/bullet markers")
+    check(TodoState.todoLines(from: "-nodash") == ["-nodash"], "no strip without space after marker")
+    check(TodoState.todoLines(from: "a - b") == ["a - b"], "only strips at line start")
 }
 
     }

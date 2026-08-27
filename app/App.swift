@@ -148,30 +148,54 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
 
 enum Tab: Hashable { case active, history }
 
+final class PasteInterceptField: NSTextField {
+    var onPasteMultiline: ((String) -> Bool)?
+
+    override func performKeyEquivalent(with event: NSEvent) -> Bool {
+        let isPaste = event.type == .keyDown
+            && event.modifierFlags.intersection(.deviceIndependentFlagsMask) == .command
+            && event.charactersIgnoringModifiers?.lowercased() == "v"
+        if isPaste,
+           let pasted = NSPasteboard.general.string(forType: .string),
+           pasted.contains(where: \.isNewline),
+           onPasteMultiline?(pasted) == true {
+            return true
+        }
+        return super.performKeyEquivalent(with: event)
+    }
+}
+
 struct PasteSplitField: NSViewRepresentable {
     @Binding var text: String
     var placeholder: String
     var isEnabled: Bool
     var onSubmit: () -> Void
+    var onPasteLines: ([String]) -> Void
 
-    func makeNSView(context: Context) -> NSTextField {
-        let field = NSTextField(string: text)
+    func makeNSView(context: Context) -> PasteInterceptField {
+        let field = PasteInterceptField(string: text)
         field.placeholderString = placeholder
         field.isBordered = false
         field.drawsBackground = false
         field.focusRingType = .none
         field.font = .systemFont(ofSize: 13)
-        field.usesSingleLineMode = false
+        field.usesSingleLineMode = true
         field.cell?.wraps = false
         field.cell?.isScrollable = true
         field.lineBreakMode = .byTruncatingTail
         field.delegate = context.coordinator
         field.isEnabled = isEnabled
         field.setContentHuggingPriority(.defaultLow, for: .horizontal)
+        field.onPasteMultiline = { pasted in
+            let lines = TodoState.todoLines(from: pasted)
+            guard !lines.isEmpty else { return false }
+            onPasteLines(lines)
+            return true
+        }
         return field
     }
 
-    func updateNSView(_ field: NSTextField, context: Context) {
+    func updateNSView(_ field: PasteInterceptField, context: Context) {
         if field.stringValue != text { field.stringValue = text }
         field.isEnabled = isEnabled
         field.placeholderString = placeholder
@@ -396,7 +420,8 @@ struct ContentView: View {
         HStack(spacing: 8) {
             workspaceMenu
             PasteSplitField(text: $input, placeholder: inputPlaceholder,
-                            isEnabled: effectiveTarget != nil, onSubmit: submit)
+                            isEnabled: effectiveTarget != nil, onSubmit: submit,
+                            onPasteLines: addLines)
                 .frame(height: 20)
 
             Button(action: submit) {
@@ -462,9 +487,11 @@ struct ContentView: View {
     }
 
     private func submit() {
-        guard let target = effectiveTarget else { return }
-        let lines = TodoState.todoLines(from: input)
-        guard !lines.isEmpty else { return }
+        addLines(TodoState.todoLines(from: input))
+    }
+
+    private func addLines(_ lines: [String]) {
+        guard let target = effectiveTarget, !lines.isEmpty else { return }
         for line in lines { store.addTodo(line, to: target) }
         input = ""
     }

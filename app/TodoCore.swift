@@ -56,8 +56,15 @@ struct TodoState: Codable, Equatable {
 extension TodoState {
     static func todoLines(from text: String) -> [String] {
         text.components(separatedBy: .newlines)
-            .map { $0.trimmingCharacters(in: .whitespacesAndNewlines) }
+            .map { stripBullet($0.trimmingCharacters(in: .whitespacesAndNewlines)) }
             .filter { !$0.isEmpty }
+    }
+
+    private static func stripBullet(_ line: String) -> String {
+        for marker in ["- ", "* ", "• ", "– ", "— "] where line.hasPrefix(marker) {
+            return String(line.dropFirst(marker.count)).trimmingCharacters(in: .whitespaces)
+        }
+        return line
     }
 
     func workspace(_ id: UUID) -> Workspace? {
