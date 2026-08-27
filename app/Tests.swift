@@ -166,5 +166,13 @@ do {
     check(s.activeCount(for: .workspace(wsA)) == 0, "completed leaves count")
 }
 
+do {
+    check(TodoState.todoLines(from: "single") == ["single"], "single line stays one item")
+    check(TodoState.todoLines(from: "a\nb\nc") == ["a", "b", "c"], "one item per newline")
+    check(TodoState.todoLines(from: "  x  \n\n  y \n") == ["x", "y"], "trims and drops blank lines")
+    check(TodoState.todoLines(from: "a\r\nb") == ["a", "b"], "handles CRLF")
+    check(TodoState.todoLines(from: "   \n  ").isEmpty, "all-blank paste yields nothing")
+}
+
     }
 }

@@ -148,6 +148,56 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
 
 enum Tab: Hashable { case active, history }
 
+struct PasteSplitField: NSViewRepresentable {
+    @Binding var text: String
+    var placeholder: String
+    var isEnabled: Bool
+    var onSubmit: () -> Void
+
+    func makeNSView(context: Context) -> NSTextField {
+        let field = NSTextField(string: text)
+        field.placeholderString = placeholder
+        field.isBordered = false
+        field.drawsBackground = false
+        field.focusRingType = .none
+        field.font = .systemFont(ofSize: 13)
+        field.usesSingleLineMode = false
+        field.cell?.wraps = false
+        field.cell?.isScrollable = true
+        field.lineBreakMode = .byTruncatingTail
+        field.delegate = context.coordinator
+        field.isEnabled = isEnabled
+        field.setContentHuggingPriority(.defaultLow, for: .horizontal)
+        return field
+    }
+
+    func updateNSView(_ field: NSTextField, context: Context) {
+        if field.stringValue != text { field.stringValue = text }
+        field.isEnabled = isEnabled
+        field.placeholderString = placeholder
+    }
+
+    func makeCoordinator() -> Coordinator { Coordinator(self) }
+
+    final class Coordinator: NSObject, NSTextFieldDelegate {
+        private let parent: PasteSplitField
+        init(_ parent: PasteSplitField) { self.parent = parent }
+
+        func controlTextDidChange(_ notification: Notification) {
+            guard let field = notification.object as? NSTextField else { return }
+            parent.text = field.stringValue
+        }
+
+        func control(_ control: NSControl, textView: NSTextView, doCommandBy selector: Selector) -> Bool {
+            if selector == #selector(NSResponder.insertNewline(_:)) {
+                parent.onSubmit()
+                return true
+            }
+            return false
+        }
+    }
+}
+
 private enum Overlay: Identifiable {
     case newWorkspace
     case rename(Workspace)
@@ -345,11 +395,9 @@ struct ContentView: View {
     private var bottomBar: some View {
         HStack(spacing: 8) {
             workspaceMenu
-            TextField(inputPlaceholder, text: $input)
-                .textFieldStyle(.plain)
-                .font(.system(size: 13))
-                .onSubmit(submit)
-                .disabled(effectiveTarget == nil)
+            PasteSplitField(text: $input, placeholder: inputPlaceholder,
+                            isEnabled: effectiveTarget != nil, onSubmit: submit)
+                .frame(height: 20)
 
             Button(action: submit) {
                 Image(systemName: "arrow.up")
@@ -414,8 +462,10 @@ struct ContentView: View {
     }
 
     private func submit() {
-        guard canSubmit, let target = effectiveTarget else { return }
-        store.addTodo(input, to: target)
+        guard let target = effectiveTarget else { return }
+        let lines = TodoState.todoLines(from: input)
+        guard !lines.isEmpty else { return }
+        for line in lines { store.addTodo(line, to: target) }
         input = ""
     }
 

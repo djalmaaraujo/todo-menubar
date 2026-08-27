@@ -54,6 +54,12 @@ struct TodoState: Codable, Equatable {
 }
 
 extension TodoState {
+    static func todoLines(from text: String) -> [String] {
+        text.components(separatedBy: .newlines)
+            .map { $0.trimmingCharacters(in: .whitespacesAndNewlines) }
+            .filter { !$0.isEmpty }
+    }
+
     func workspace(_ id: UUID) -> Workspace? {
         workspaces.first { $0.id == id }
     }
