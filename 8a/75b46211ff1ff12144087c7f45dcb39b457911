@@ -1,0 +1,21 @@
+app/Tests.swift
+  s_92b197122590d1::t_e7c1c5d4efa11f 14
+app/make_icon.swift
+  s_92b197122590d1::t_e7c1c5d4efa11f 10,30
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.6.24",
+  "base_commit_sha": "8a75b46211ff1ff12144087c7f45dcb39b457911",
+  "prompts": {},
+  "sessions": {
+    "s_92b197122590d1": {
+      "agent_id": {
+        "tool": "claude",
+        "id": "4aecc2b5-ba4c-4ebf-8182-8855bac4c5d6",
+        "model": "claude-opus-4-8"
+      },
+      "human_author": "Djalma Araújo <djalma@nossomos.cc>"
+    }
+  }
+}
