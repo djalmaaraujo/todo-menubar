@@ -1,0 +1,27 @@
+app/Tests.swift
+  s_92b197122590d1::t_5fa4f8775b7bd0 169-176
+app/TodoCore.swift
+  s_92b197122590d1::t_03a457873682d9 58-59
+  s_92b197122590d1::t_197c9a1cd75b31 57,60-62
+app/App.swift
+  s_92b197122590d1::t_58dc3906a1eabd 398-400
+  s_92b197122590d1::t_fd51037a152ac2 466
+  s_92b197122590d1::t_51dbbdfada4c4d 151-200
+  s_92b197122590d1::t_6e82aad7ab0265 465,467-468
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.6.24",
+  "base_commit_sha": "3593e6fda7c8a7bfbea76abdf4d27eaed598cca0",
+  "prompts": {},
+  "sessions": {
+    "s_92b197122590d1": {
+      "agent_id": {
+        "tool": "claude",
+        "id": "4aecc2b5-ba4c-4ebf-8182-8855bac4c5d6",
+        "model": "claude-opus-4-8"
+      },
+      "human_author": "Djalma Araújo <djalma@nossomos.cc>"
+    }
+  }
+}
