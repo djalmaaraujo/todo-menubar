@@ -13,6 +13,9 @@ final class TodoStore: ObservableObject {
 
     private let defaults: UserDefaults
     private let key = "todostate.v1"
+    private let backupKey = "todostate.v1.unreadable-backup"
+    private let readErrorText = "Could not read saved todos (a backup was kept)"
+    private let saveErrorText = "Could not save todos"
 
     init(defaults: UserDefaults = .standard) {
         self.defaults = defaults
@@ -22,8 +25,9 @@ final class TodoStore: ObservableObject {
                 loaded.normalizeSelection()
                 state = loaded
             } catch {
+                defaults.set(data, forKey: backupKey)
                 state = .seeded()
-                errorText = "Could not read saved todos"
+                errorText = readErrorText
             }
         } else {
             state = .seeded()
@@ -55,9 +59,9 @@ final class TodoStore: ObservableObject {
         do {
             let data = try JSONEncoder().encode(state)
             defaults.set(data, forKey: key)
-            errorText = nil
+            if errorText == saveErrorText { errorText = nil }
         } catch {
-            errorText = "Could not save todos"
+            errorText = saveErrorText
         }
     }
 }
@@ -172,7 +176,6 @@ struct ContentView: View {
         }
     }
 
-    // MARK: Content
 
     @ViewBuilder
     private var content: some View {
@@ -251,6 +254,14 @@ struct ContentView: View {
                 .font(.system(size: 13))
                 .foregroundStyle(Color.textDim)
                 .strikethrough(true, color: Color.textDim.opacity(0.6))
+            if store.state.selection == .all, let ws = store.state.workspace(todo.workspaceId) {
+                Text(ws.name)
+                    .font(.system(size: 10, weight: .semibold))
+                    .foregroundStyle(Color.accentIndigo)
+                    .padding(.horizontal, 6)
+                    .padding(.vertical, 2)
+                    .background(Color.accentIndigo.opacity(0.14), in: Capsule())
+            }
             Spacer(minLength: 8)
             trashButton(todo)
         }
@@ -286,7 +297,6 @@ struct ContentView: View {
         .padding(.top, 40)
     }
 
-    // MARK: Bottom bar
 
     private var bottomBar: some View {
         HStack(spacing: 8) {
@@ -365,7 +375,6 @@ struct ContentView: View {
         input = ""
     }
 
-    // MARK: Overlay
 
     @ViewBuilder
     private var overlayCard: some View {
@@ -463,8 +472,8 @@ func makeSampleStore(selectAll: Bool = false) -> TodoStore {
     store.addTodo("Ship the release", to: work.id)
     store.addTodo("Review the PR", to: work.id)
     store.addTodo("Walk the dog", to: personal.id)
-    if let dog = store.state.activeTodos(for: .workspace(personal.id)).first(where: { $0.text == "Walk the dog" }) {
-        store.complete(dog.id)
+    for done in ["Walk the dog", "Review the PR"] {
+        if let t = store.state.todos.first(where: { $0.text == done }) { store.complete(t.id) }
     }
     store.select(selectAll ? .all : .workspace(personal.id))
     return store
@@ -485,7 +494,7 @@ enum RenderMain {
         let tab: Tab
         switch mode {
         case "all":     store = makeSampleStore(selectAll: true);  tab = .active
-        case "history": store = makeSampleStore(selectAll: false); tab = .history
+        case "history": store = makeSampleStore(selectAll: true);  tab = .history
         default:        store = makeSampleStore(selectAll: false); tab = .active
         }
 
