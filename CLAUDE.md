@@ -29,16 +29,18 @@ Screenshots can't be taken here (no Screen Recording / accessibility), so `App.s
 carries a `#if RENDER` entry point that draws `ContentView` into a PNG via
 `NSHostingView.cacheDisplay` — real fonts and SF Symbols, no window, no screen
 capture. It's compiled out of the shipped app (guarded by the `RENDER` flag;
-`build.sh` never sets it). To regenerate the README shots:
+`build.sh` never sets it). Use it to eyeball a layout change:
 
 ```sh
 cd app
 swiftc -parse-as-library -DRENDER -O -o build/render TodoCore.swift App.swift \
     -framework SwiftUI -framework AppKit -target arm64-apple-macos13.0
-RENDER_MODE=active  RENDER_OUT=../assets/screenshot-main.png    ./build/render
-RENDER_MODE=all     RENDER_OUT=../assets/screenshot-all.png     ./build/render
-RENDER_MODE=history RENDER_OUT=../assets/screenshot-history.png ./build/render
+RENDER_MODE=active|all|history|empty RENDER_OUT=/tmp/shot.png ./build/render
 ```
+
+This draws only `ContentView`, NOT the `NSPopover` chrome/arrow — the committed
+`assets/screenshot-*.png` are real popover captures taken on a machine with Screen
+Recording, so don't overwrite them with a flat `-DRENDER` dump.
 
 ## Names and ids
 

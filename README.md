@@ -37,9 +37,9 @@ Click the menu bar icon, jot a task, hit enter. That's the whole app.
 Create a workspace with the **+ New workspace…** item in the selector; rename or delete it from the same menu (deleting takes its tasks and history with it).
 
 <p align="center">
-  <img src="assets/screenshot-all.png" alt="All view grouped by workspace" width="320">
+  <img src="assets/screenshot-history.png" alt="History timeline grouped by day, tagged by workspace" width="320">
   &nbsp;
-  <img src="assets/screenshot-history.png" alt="History timeline grouped by day" width="320">
+  <img src="assets/screenshot-menu.png" alt="Workspace switcher with New workspace action" width="320">
 </p>
 
 ## Dependencies
