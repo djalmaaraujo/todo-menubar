@@ -1,0 +1,22 @@
+README.md
+  s_92b197122590d1::t_a8105100242410 40,42
+CLAUDE.md
+  s_92b197122590d1::t_f2971274699f0e 32,38,41-43
+  s_92b197122590d1::t_3ac7fd516fe32d 44
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.6.24",
+  "base_commit_sha": "7456ff8c73588c9afbacea5f5720e0bfccc7fdd1",
+  "prompts": {},
+  "sessions": {
+    "s_92b197122590d1": {
+      "agent_id": {
+        "tool": "claude",
+        "id": "4aecc2b5-ba4c-4ebf-8182-8855bac4c5d6",
+        "model": "claude-opus-4-8"
+      },
+      "human_author": "Djalma Araújo <djalma@nossomos.cc>"
+    }
+  }
+}
