@@ -1,0 +1,27 @@
+CLAUDE.md
+  s_92b197122590d1::t_ee648de096505f 1-85
+CLAUDE.local.md
+  s_92b197122590d1::t_fdc974ff793ea6 1-28
+.gitignore
+  s_92b197122590d1::t_9158e452b9c7ee 1-4
+LICENSE
+  s_92b197122590d1::t_91b9cae7edde40 1-21
+docs/superpowers/specs/2026-08-27-todo-menubar-design.md
+  s_92b197122590d1::t_d50a4203c6875d 1-219
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.6.24",
+  "base_commit_sha": "656784dbca2c9b032f9cdd05d56d7c377c45a0ca",
+  "prompts": {},
+  "sessions": {
+    "s_92b197122590d1": {
+      "agent_id": {
+        "tool": "claude",
+        "id": "4aecc2b5-ba4c-4ebf-8182-8855bac4c5d6",
+        "model": "claude-opus-4-8"
+      },
+      "human_author": "Djalma Araújo <djalma@nossomos.cc>"
+    }
+  }
+}
