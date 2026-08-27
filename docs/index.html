@@ -1,0 +1,140 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Todo Menubar — your todos, right in the menu bar</title>
+<meta name="description" content="A tiny native macOS menu bar todo list, organized by workspace. No cloud, no account, no sync.">
+<style>
+  :root {
+    --bg-start: #0f172a;
+    --bg-end:   #1e1b4b;
+    --accent-a: #22d3ee;
+    --accent-b: #6366f1;
+    --accent-c: #38bdf8;
+    --text:     #e2e8f0;
+    --text-dim: #94a3b8;
+    --card:     rgba(255,255,255,0.04);
+    --border:   rgba(255,255,255,0.08);
+    --font: ui-monospace, SFMono-Regular, Menlo, monospace;
+    --sans: -apple-system, BlinkMacSystemFont, "Segoe UI", Helvetica, Arial, sans-serif;
+  }
+  * { box-sizing: border-box; }
+  body {
+    margin: 0; color: var(--text);
+    font-family: var(--sans);
+    background: linear-gradient(160deg, var(--bg-start), var(--bg-end));
+    background-attachment: fixed;
+    min-height: 100vh; line-height: 1.6;
+  }
+  a { color: var(--accent-a); text-decoration: none; }
+  a:hover { text-decoration: underline; }
+  .wrap { max-width: 920px; margin: 0 auto; padding: 0 24px; }
+  header { text-align: center; padding: 72px 0 40px; }
+  header img { width: min(480px, 90%); }
+  .headline {
+    font-size: clamp(28px, 5vw, 44px); font-weight: 800; margin: 24px 0 8px;
+    background: linear-gradient(90deg, var(--accent-a), var(--accent-b));
+    -webkit-background-clip: text; background-clip: text; -webkit-text-fill-color: transparent;
+  }
+  .sub { color: var(--text-dim); font-size: 18px; margin: 0 auto 28px; max-width: 620px; }
+  .install-row {
+    display: inline-flex; align-items: center; gap: 10px;
+    background: var(--card); border: 1px solid var(--border);
+    border-radius: 12px; padding: 10px 12px; font-family: var(--font); font-size: 14px;
+  }
+  .install-row code { color: var(--text); }
+  .copy {
+    cursor: pointer; border: none; border-radius: 8px; padding: 6px 12px;
+    color: var(--bg-start); font-weight: 700; font-family: var(--sans);
+    background: linear-gradient(90deg, var(--accent-a), var(--accent-b));
+  }
+  .links { margin-top: 20px; font-family: var(--font); font-size: 14px; }
+  .shot { text-align: center; margin: 48px 0; }
+  .shot img { width: min(420px, 92%); border-radius: 16px; box-shadow: 0 30px 80px rgba(0,0,0,0.45); }
+  h2 { font-size: 26px; margin: 56px 0 20px; }
+  .cards { display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: 16px; }
+  .card { background: var(--card); border: 1px solid var(--border); border-radius: 14px; padding: 20px; }
+  .card h3 { margin: 0 0 8px; font-size: 17px; }
+  .card p { margin: 0; color: var(--text-dim); font-size: 15px; }
+  pre {
+    background: rgba(0,0,0,0.35); border: 1px solid var(--border); border-radius: 12px;
+    padding: 16px 18px; overflow-x: auto; font-family: var(--font); font-size: 14px; color: var(--text);
+  }
+  ul.reqs { color: var(--text-dim); padding-left: 20px; }
+  .faq dt { font-weight: 700; margin-top: 18px; }
+  .faq dd { margin: 4px 0 0; color: var(--text-dim); }
+  footer { text-align: center; color: var(--text-dim); font-size: 14px; padding: 64px 0 48px; }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <header>
+    <img src="assets/logo.svg" alt="Todo Menubar">
+    <div class="headline">Your todos, right in the menu bar.</div>
+    <p class="sub">A tiny native macOS menu bar todo list, organized by workspace. No cloud, no account, no sync — everything stays on your Mac.</p>
+    <div class="install-row">
+      <code id="cmd">brew install djalmaaraujo/tap/todo-menubar</code>
+      <button class="copy" onclick="copyInstall()">Copy</button>
+    </div>
+    <div class="links">
+      <a href="https://github.com/djalmaaraujo/todo-menubar">GitHub</a> ·
+      <a href="https://github.com/djalmaaraujo/todo-menubar/releases">Releases</a>
+    </div>
+  </header>
+
+  <div class="shot">
+    <img src="assets/screenshot-main.png" alt="Todo Menubar popover">
+  </div>
+
+  <h2>What you get</h2>
+  <div class="cards">
+    <div class="card"><h3>Workspaces</h3><p>Separate your contexts. Switch from the selector next to the input and the list follows.</p></div>
+    <div class="card"><h3>All view</h3><p>One selection lists every workspace, each under its own header.</p></div>
+    <div class="card"><h3>Active &amp; History</h3><p>Check a task off and it moves to a date-grouped history timeline. Delete from either.</p></div>
+    <div class="card"><h3>Menu bar count</h3><p>The icon shows how many active tasks the current selection has.</p></div>
+    <div class="card"><h3>Zero dependencies</h3><p>One self-contained Swift app. SwiftUI + AppKit, nothing vendored.</p></div>
+    <div class="card"><h3>Yours only</h3><p>Everything lives in local storage. No network calls, no telemetry, ever.</p></div>
+  </div>
+
+  <h2>Install</h2>
+  <pre>brew install djalmaaraujo/tap/todo-menubar</pre>
+  <p style="color:var(--text-dim)">Or build from source:</p>
+  <pre>git clone https://github.com/djalmaaraujo/todo-menubar.git
+cd todo-menubar/app
+./build.sh</pre>
+
+  <h2>Requirements</h2>
+  <ul class="reqs">
+    <li>macOS 13 or later, Apple silicon.</li>
+    <li>Xcode Command Line Tools to build from source (<code>xcode-select --install</code>).</li>
+  </ul>
+
+  <h2>FAQ</h2>
+  <dl class="faq">
+    <dt>Where is my data stored?</dt>
+    <dd>In your Mac's local app storage, as a single JSON blob. Delete the app and it's gone.</dd>
+    <dt>Does it sync across devices?</dt>
+    <dd>No. That's the point — it's local, private, and instant.</dd>
+    <dt>Is there search or reminders?</dt>
+    <dd>No. It's deliberately the smallest useful todo list: add, complete, delete, by workspace.</dd>
+  </dl>
+
+  <footer>
+    MIT © Djalma Araújo · built like
+    <a href="https://github.com/djalmaaraujo/pr-menubar">pr-menubar</a> and
+    <a href="https://github.com/djalmaaraujo/claude-usage-menubar">claude-usage-menubar</a>
+  </footer>
+</div>
+
+<script>
+  function copyInstall() {
+    navigator.clipboard.writeText(document.getElementById('cmd').textContent).then(function () {
+      var b = document.querySelector('.copy');
+      var t = b.textContent; b.textContent = 'Copied';
+      setTimeout(function () { b.textContent = t; }, 1400);
+    });
+  }
+</script>
+</body>
+</html>

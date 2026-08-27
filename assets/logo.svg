@@ -1,0 +1,32 @@
+<svg width="640" height="220" viewBox="0 0 640 220" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <defs>
+    <linearGradient id="bgGrad" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#6366f1"/>
+      <stop offset="1" stop-color="#22d3ee"/>
+    </linearGradient>
+    <linearGradient id="strokeGrad" x1="0" y1="0" x2="1" y2="0">
+      <stop offset="0" stop-color="#22d3ee"/>
+      <stop offset="1" stop-color="#6366f1"/>
+    </linearGradient>
+  </defs>
+
+  <!-- badge -->
+  <rect x="40" y="42" width="136" height="136" rx="34" fill="url(#bgGrad)"/>
+  <g stroke="#e2e8f0" stroke-width="8" stroke-linecap="round" stroke-linejoin="round" fill="none">
+    <!-- row 1: check + line -->
+    <path d="M70 86 l10 10 l16 -20"/>
+    <line x1="112" y1="88" x2="150" y2="88"/>
+    <!-- row 2: check + line -->
+    <path d="M70 118 l10 10 l16 -20"/>
+    <line x1="112" y1="120" x2="150" y2="120"/>
+    <!-- row 3: empty box + line -->
+    <circle cx="80" cy="150" r="11"/>
+    <line x1="112" y1="150" x2="150" y2="150"/>
+  </g>
+
+  <!-- wordmark -->
+  <text x="210" y="115" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', Helvetica, Arial, sans-serif"
+        font-size="56" font-weight="800" fill="#e2e8f0">Todo Menubar</text>
+  <text x="212" y="150" font-family="ui-monospace, SFMono-Regular, Menlo, monospace"
+        font-size="17" fill="#94a3b8">your todos, right in the menu bar</text>
+</svg>
