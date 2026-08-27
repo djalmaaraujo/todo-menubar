@@ -101,9 +101,6 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
     private var cancellables: [AnyCancellable] = []
 
     func applicationDidFinishLaunching(_ notification: Notification) {
-        let host = NSHostingController(rootView: ContentView(store: store))
-        host.sizingOptions = [.preferredContentSize]
-        popover.contentViewController = host
         popover.behavior = .transient
         popover.animates = true
 
@@ -138,6 +135,9 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
         if popover.isShown {
             popover.performClose(nil)
         } else {
+            let host = NSHostingController(rootView: ContentView(store: store, initialTab: .active))
+            host.sizingOptions = [.preferredContentSize]
+            popover.contentViewController = host
             popover.show(relativeTo: button.bounds, of: button, preferredEdge: .minY)
             NSApp.activate(ignoringOtherApps: true)
             popover.contentViewController?.view.window?.makeKey()
@@ -169,6 +169,7 @@ struct ContentView: View {
     @State private var input = ""
     @State private var overlay: Overlay?
     @State private var overlayText = ""
+    @FocusState private var overlayFieldFocused: Bool
 
     init(store: TodoStore, initialTab: Tab = .active) {
         self.store = store
@@ -233,7 +234,7 @@ struct ContentView: View {
         if store.state.selection == .all {
             let groups = store.state.activeGrouped(for: .all)
             if groups.isEmpty {
-                emptyState("No tasks yet")
+                emptyState("No tasks yet", systemImage: "checklist")
             } else {
                 ForEach(groups, id: \.workspace.id) { group in
                     sectionHeader(group.workspace.name)
@@ -243,7 +244,7 @@ struct ContentView: View {
         } else {
             let items = store.state.activeTodos(for: store.state.selection)
             if items.isEmpty {
-                emptyState("No tasks yet")
+                emptyState("No tasks yet", systemImage: "checklist")
             } else {
                 ForEach(items) { todo in activeRow(todo) }
             }
@@ -254,7 +255,7 @@ struct ContentView: View {
     private var historyContent: some View {
         let groups = store.state.historyGrouped(for: store.state.selection)
         if groups.isEmpty {
-            emptyState("Nothing completed yet")
+            emptyState("Nothing completed yet", systemImage: "clock.arrow.circlepath")
         } else {
             ForEach(groups, id: \.day) { group in
                 sectionHeader(dayLabel(group.day))
@@ -327,13 +328,17 @@ struct ContentView: View {
             .padding(.bottom, 2)
     }
 
-    private func emptyState(_ text: String) -> some View {
-        HStack {
-            Spacer()
-            Text(text).font(.system(size: 12)).foregroundStyle(.secondary)
-            Spacer()
+    private func emptyState(_ text: String, systemImage: String) -> some View {
+        VStack(spacing: 14) {
+            Image(systemName: systemImage)
+                .font(.system(size: 46, weight: .regular))
+                .foregroundStyle(Color.textDim.opacity(0.45))
+            Text(text)
+                .font(.system(size: 13, weight: .medium))
+                .foregroundStyle(.secondary)
         }
-        .padding(.top, 40)
+        .frame(maxWidth: .infinity)
+        .frame(height: 284)
     }
 
 
@@ -455,7 +460,9 @@ struct ContentView: View {
     private func overlayField(_ placeholder: String) -> some View {
         TextField(placeholder, text: $overlayText)
             .textFieldStyle(.roundedBorder)
+            .focused($overlayFieldFocused)
             .onSubmit { confirmOverlay() }
+            .onAppear { DispatchQueue.main.async { overlayFieldFocused = true } }
     }
 
     private enum OverlayRole { case plain, destructive }
@@ -534,6 +541,11 @@ enum RenderMain {
         switch mode {
         case "all":     store = makeSampleStore(selectAll: true);  tab = .active
         case "history": store = makeSampleStore(selectAll: true);  tab = .history
+        case "empty":
+            let suite = UserDefaults(suiteName: "todobar.preview")!
+            suite.removePersistentDomain(forName: "todobar.preview")
+            store = TodoStore(defaults: suite)
+            tab = .active
         default:        store = makeSampleStore(selectAll: false); tab = .active
         }
 
