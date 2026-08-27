@@ -13,8 +13,9 @@ project: `app/build.sh` compiles `app/TodoCore.swift` + `app/App.swift` with
 - `TodoCore.swift` — Foundation-only. `Workspace`, `Todo`, `Selection`, and
   `TodoState` with every operation as a pure `mutating` func plus the grouping
   queries. This is what the tests exercise; keep it free of SwiftUI/UserDefaults.
-- `App.swift` — SwiftUI. `TodoStore` (the `ObservableObject` that owns a
-  `TodoState` and persists it), the `MenuBarExtra` scene, and all the views.
+- `App.swift` — SwiftUI + AppKit. `TodoStore` (the `ObservableObject` that owns a
+  `TodoState` and persists it), an `AppDelegate` that runs the menu bar
+  (`NSStatusItem` + `NSPopover`), and all the views.
 - Persistence: one JSON blob under the `UserDefaults` key `todostate.v1`. Saved
   after every mutation; loaded (and `normalizeSelection()`'d) at launch.
 
@@ -71,15 +72,16 @@ signal that the tap is still stale.
 
 - **Never force-push the tap.** Only ADD commits to `homebrew-tap`. Amending/rebasing
   after push corrupts every consumer's clone.
-- **`Text("\(someInt)")` localizes the number.** SwiftUI's `LocalizedStringKey`
-  interpolation adds the locale's thousands separator. Use `Text(verbatim:)` for the
-  menu-bar count.
-- **Menu bar icon: no `.resizable()`/`.frame()`** on the `Image(nsImage:)` inside a
-  `MenuBarExtra` label — set `NSImage.size` directly (aspect-preserving), or it
-  renders nothing.
-- **`MenuBarExtra(title:systemImage:)` drops the title** under
-  `.menuBarExtraStyle(.window)`. Build the label as an explicit `HStack { Image; Text }`.
-- **Sheets/`confirmationDialog` are unreliable inside a `.window` `MenuBarExtra`.**
+- **The arrow/tail pointing at the menu-bar icon comes from `NSPopover`.**
+  `MenuBarExtra(.window)` draws a plain panel with no arrow — that's why the shell is
+  a manual `NSStatusItem` + `NSPopover` (`.transient`, anchored to the status button
+  with `preferredEdge: .minY`), not `MenuBarExtra`.
+- **Menu bar icon: set `NSImage.size` directly** (aspect-preserving), template on —
+  don't rely on autosizing. The badge is `statusItem.button.title` (a plain `String`,
+  so no SwiftUI `LocalizedStringKey` thousands-separator issue).
+- **Sheets/`confirmationDialog` are unreliable inside the popover.**
   New/rename/delete-workspace are drawn as an in-popover overlay card, not a sheet.
+- **The badge updates via Combine** — `AppDelegate` sinks `store.$state`/`$errorText`
+  on `RunLoop.main` (so it reads the post-change value) and refreshes the button.
 - **`Tests.swift` needs `@main` + `-parse-as-library`.** Top-level statements are
   rejected by `-parse-as-library`; the whole suite runs inside `TestRunner.main()`.

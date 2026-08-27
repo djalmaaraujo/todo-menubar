@@ -1,5 +1,6 @@
 import SwiftUI
 import AppKit
+import Combine
 
 extension Color {
     static let accentIndigo = Color(red: 0.39, green: 0.40, blue: 0.95)   // #6366f1
@@ -86,23 +87,61 @@ enum MenuBarMark {
 #if !RENDER
 @main
 struct TodoMenubarApp: App {
-    @StateObject private var store = TodoStore()
+    @NSApplicationDelegateAdaptor(AppDelegate.self) private var delegate
 
     var body: some Scene {
-        MenuBarExtra {
-            ContentView(store: store)
-        } label: {
-            HStack(spacing: 2) {
-                if store.errorText != nil {
-                    Image(systemName: "exclamationmark.triangle")
-                } else {
-                    Image(nsImage: MenuBarMark.image)
-                    let count = store.state.activeCount(for: store.state.selection)
-                    if count > 0 { Text(verbatim: "\(count)") }
-                }
-            }
+        Settings { EmptyView() }
+    }
+}
+
+final class AppDelegate: NSObject, NSApplicationDelegate {
+    private let store = TodoStore()
+    private let popover = NSPopover()
+    private var statusItem: NSStatusItem!
+    private var cancellables: [AnyCancellable] = []
+
+    func applicationDidFinishLaunching(_ notification: Notification) {
+        let host = NSHostingController(rootView: ContentView(store: store))
+        host.sizingOptions = [.preferredContentSize]
+        popover.contentViewController = host
+        popover.behavior = .transient
+        popover.animates = true
+
+        statusItem = NSStatusBar.system.statusItem(withLength: NSStatusItem.variableLength)
+        statusItem.button?.imagePosition = .imageLeading
+        statusItem.button?.target = self
+        statusItem.button?.action = #selector(togglePopover)
+
+        store.$state.receive(on: RunLoop.main)
+            .sink { [weak self] _ in self?.refreshButton() }.store(in: &cancellables)
+        store.$errorText.receive(on: RunLoop.main)
+            .sink { [weak self] _ in self?.refreshButton() }.store(in: &cancellables)
+        refreshButton()
+    }
+
+    private func refreshButton() {
+        guard let button = statusItem.button else { return }
+        if store.errorText != nil {
+            let warning = NSImage(systemSymbolName: "exclamationmark.triangle", accessibilityDescription: "Error")
+            warning?.isTemplate = true
+            button.image = warning
+            button.title = ""
+        } else {
+            button.image = MenuBarMark.image
+            let count = store.state.activeCount(for: store.state.selection)
+            button.title = count > 0 ? " \(count)" : ""
         }
-        .menuBarExtraStyle(.window)
+    }
+
+    @objc private func togglePopover() {
+        guard let button = statusItem.button else { return }
+        if popover.isShown {
+            popover.performClose(nil)
+        } else {
+            popover.show(relativeTo: button.bounds, of: button, preferredEdge: .minY)
+            NSApp.activate(ignoringOtherApps: true)
+            popover.contentViewController?.view.window?.makeKey()
+        }
     }
 }
 #endif

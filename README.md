@@ -78,7 +78,7 @@ UserDefaults (JSON blob)
    pure logic       persists on every mutation
         │
         ▼
-   MenuBarExtra(.window)  ──►  the popover you see
+   NSStatusItem + NSPopover  ──►  the popover you see
 ```
 
 `TodoCore.swift` holds the whole model and every operation as pure, testable
