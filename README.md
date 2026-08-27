@@ -32,6 +32,7 @@ Click the menu bar icon, jot a task, hit enter. That's the whole app.
 - **All view** — one selection lists every workspace, grouped under its own header.
 - **Active / History tabs** — checking a task off moves it out of Active and into a date-grouped **History** timeline. Delete from either.
 - **Add, complete, delete** — a circle to complete, a trash can to remove. Nothing else to learn.
+- **Paste a list, get a list** — paste multi-line text and each line becomes its own task, in one shot. Leading bullets (`- `, `* `, `• `) are stripped automatically.
 - **Menu bar count** — the icon shows how many active tasks the current selection has.
 
 Create a workspace with the **+ New workspace…** item in the selector; rename or delete it from the same menu (deleting takes its tasks and history with it).
