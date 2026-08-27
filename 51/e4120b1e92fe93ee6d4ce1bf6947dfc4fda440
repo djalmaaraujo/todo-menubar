@@ -1,0 +1,28 @@
+app/Tests.swift
+  s_92b197122590d1::t_3caf1b4288bc40 175-178
+CLAUDE.md
+  s_92b197122590d1::t_284313eaf6a4ec 88-92
+app/App.swift
+  s_92b197122590d1::t_b37a2c8c8d5d34 151-167,173,175-176,182,189-194,198
+  s_92b197122590d1::t_4c69ec7669e0ca 423-424
+  s_92b197122590d1::t_57ac13ad984f3d 490-494
+app/TodoCore.swift
+  s_92b197122590d1::t_9ab5d30708744b 59,63-67
+  s_92b197122590d1::t_580fd7561207ee 68-69
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.6.24",
+  "base_commit_sha": "51e4120b1e92fe93ee6d4ce1bf6947dfc4fda440",
+  "prompts": {},
+  "sessions": {
+    "s_92b197122590d1": {
+      "agent_id": {
+        "tool": "claude",
+        "id": "4aecc2b5-ba4c-4ebf-8182-8855bac4c5d6",
+        "model": "claude-opus-4-8"
+      },
+      "human_author": "Djalma Araújo <djalma@nossomos.cc>"
+    }
+  }
+}
