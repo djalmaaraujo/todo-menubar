@@ -1,0 +1,25 @@
+app/test.sh
+  s_92b197122590d1::t_e1c004bae95c45 1-11
+app/Tests.swift
+  s_92b197122590d1::t_93b559946d111f 181
+  s_92b197122590d1::t_2b6cf6ee86e3cd 30-44
+  s_92b197122590d1::t_b0c28ad99a1ffb 1-29,45-180,182
+app/TodoCore.swift
+  s_92b197122590d1::t_b41d5107b31982 1-155
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.6.24",
+  "base_commit_sha": "8e2ee307e540a8416680b8ed3f3136b4ffd5ebcd",
+  "prompts": {},
+  "sessions": {
+    "s_92b197122590d1": {
+      "agent_id": {
+        "tool": "claude",
+        "id": "4aecc2b5-ba4c-4ebf-8182-8855bac4c5d6",
+        "model": "claude-opus-4-8"
+      },
+      "human_author": "Djalma Araújo <djalma@nossomos.cc>"
+    }
+  }
+}
