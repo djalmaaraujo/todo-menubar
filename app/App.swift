@@ -11,15 +11,21 @@ extension Color {
 final class TodoStore: ObservableObject {
     @Published private(set) var state: TodoState
     @Published var errorText: String?
+    @Published var draft: String { didSet { defaults.set(draft, forKey: draftKey) } }
+    @Published var pinned: Bool { didSet { defaults.set(pinned, forKey: pinnedKey) } }
 
     private let defaults: UserDefaults
     private let key = "todostate.v1"
     private let backupKey = "todostate.v1.unreadable-backup"
+    private let draftKey = "draft.v1"
+    private let pinnedKey = "pinned.v1"
     private let readErrorText = "Could not read saved todos (a backup was kept)"
     private let saveErrorText = "Could not save todos"
 
     init(defaults: UserDefaults = .standard) {
         self.defaults = defaults
+        self.draft = defaults.string(forKey: draftKey) ?? ""
+        self.pinned = defaults.bool(forKey: pinnedKey)
         if let data = defaults.data(forKey: key) {
             do {
                 var loaded = try JSONDecoder().decode(TodoState.self, from: data)
@@ -101,7 +107,6 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
     private var cancellables: [AnyCancellable] = []
 
     func applicationDidFinishLaunching(_ notification: Notification) {
-        popover.behavior = .transient
         popover.animates = true
 
         statusItem = NSStatusBar.system.statusItem(withLength: NSStatusItem.variableLength)
@@ -113,6 +118,10 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
             .sink { [weak self] _ in self?.refreshButton() }.store(in: &cancellables)
         store.$errorText.receive(on: RunLoop.main)
             .sink { [weak self] _ in self?.refreshButton() }.store(in: &cancellables)
+        store.$pinned.receive(on: RunLoop.main)
+            .sink { [weak self] pinned in
+                self?.popover.behavior = pinned ? .applicationDefined : .transient
+            }.store(in: &cancellables)
         refreshButton()
     }
 
@@ -138,6 +147,7 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
             let host = NSHostingController(rootView: ContentView(store: store, initialTab: .active))
             host.sizingOptions = [.preferredContentSize]
             popover.contentViewController = host
+            popover.behavior = store.pinned ? .applicationDefined : .transient
             popover.show(relativeTo: button.bounds, of: button, preferredEdge: .minY)
             NSApp.activate(ignoringOtherApps: true)
             popover.contentViewController?.view.window?.makeKey()
@@ -240,10 +250,13 @@ struct ContentView: View {
     @ObservedObject var store: TodoStore
 
     @State private var tab: Tab
-    @State private var input = ""
     @State private var overlay: Overlay?
     @State private var overlayText = ""
     @FocusState private var overlayFieldFocused: Bool
+
+    private var draftBinding: Binding<String> {
+        Binding(get: { store.draft }, set: { store.draft = $0 })
+    }
 
     init(store: TodoStore, initialTab: Tab = .active) {
         self.store = store
@@ -253,12 +266,23 @@ struct ContentView: View {
     var body: some View {
         ZStack {
             VStack(spacing: 0) {
-                Picker("", selection: $tab) {
-                    Text("Active").tag(Tab.active)
-                    Text("History").tag(Tab.history)
+                HStack(spacing: 8) {
+                    Picker("", selection: $tab) {
+                        Text("Active").tag(Tab.active)
+                        Text("History").tag(Tab.history)
+                    }
+                    .pickerStyle(.segmented)
+                    .labelsHidden()
+
+                    Button { store.pinned.toggle() } label: {
+                        Image(systemName: store.pinned ? "pin.fill" : "pin")
+                            .font(.system(size: 13, weight: .semibold))
+                            .foregroundStyle(store.pinned ? Color.accentIndigo : Color.secondary)
+                            .frame(width: 24, height: 22)
+                    }
+                    .buttonStyle(.plain)
+                    .help(store.pinned ? "Unpin (let it close on click-away)" : "Pin (keep open)")
                 }
-                .pickerStyle(.segmented)
-                .labelsHidden()
                 .padding(.horizontal, 12)
                 .padding(.top, 10)
                 .padding(.bottom, 8)
@@ -419,7 +443,7 @@ struct ContentView: View {
     private var bottomBar: some View {
         HStack(spacing: 8) {
             workspaceMenu
-            PasteSplitField(text: $input, placeholder: inputPlaceholder,
+            PasteSplitField(text: draftBinding, placeholder: inputPlaceholder,
                             isEnabled: effectiveTarget != nil, onSubmit: submit,
                             onPasteLines: addLines)
                 .frame(height: 20)
@@ -483,17 +507,17 @@ struct ContentView: View {
     }
 
     private var canSubmit: Bool {
-        !input.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty && effectiveTarget != nil
+        !store.draft.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty && effectiveTarget != nil
     }
 
     private func submit() {
-        addLines(TodoState.todoLines(from: input))
+        addLines(TodoState.todoLines(from: store.draft))
     }
 
     private func addLines(_ lines: [String]) {
         guard let target = effectiveTarget, !lines.isEmpty else { return }
         for line in lines { store.addTodo(line, to: target) }
-        input = ""
+        store.draft = ""
     }
 
 
