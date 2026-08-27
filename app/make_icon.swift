@@ -7,10 +7,9 @@ func drawGlyph(size: CGFloat, color: NSColor, lineScale: CGFloat = 0.052) {
     let s = size / 100.0
     color.setStroke()
     let lw = size * lineScale
-    let rows: [CGFloat] = [72, 50, 28] // centers, bottom-up
+    let rows: [CGFloat] = [72, 50, 28]
 
     for (i, cy) in rows.enumerated() {
-        // check mark (rows 0,1) or empty circle (row 2)
         if i < 2 {
             let check = NSBezierPath()
             check.lineWidth = lw
@@ -28,7 +27,7 @@ func drawGlyph(size: CGFloat, color: NSColor, lineScale: CGFloat = 0.052) {
             box.stroke()
         }
 
-        // the list line to the right
+
         let line = NSBezierPath()
         line.lineWidth = lw
         line.lineCapStyle = .round
@@ -38,7 +37,6 @@ func drawGlyph(size: CGFloat, color: NSColor, lineScale: CGFloat = 0.052) {
     }
 }
 
-// ---- menubar template mark (black on transparent) ----
 func makeMenubarMark(size: CGFloat = 150) -> NSImage {
     let img = NSImage(size: NSSize(width: size, height: size))
     img.lockFocus()
@@ -48,7 +46,6 @@ func makeMenubarMark(size: CGFloat = 150) -> NSImage {
     return img
 }
 
-// ---- app icon tile (gradient rounded rect + light glyph) ----
 func makeIconTile(size: CGFloat) -> NSImage {
     let img = NSImage(size: NSSize(width: size, height: size))
     img.lockFocus()
@@ -63,7 +60,6 @@ func makeIconTile(size: CGFloat) -> NSImage {
     ])!
     gradient.draw(in: rect, angle: -45)
 
-    // center the glyph inside ~64% of the tile
     let inset = size * 0.18
     let g = size - inset * 2
     let ctx = NSGraphicsContext.current
@@ -93,11 +89,9 @@ func writePNG(_ image: NSImage, to path: String, pixelSize: CGFloat) {
     }
 }
 
-// menubar mark
 writePNG(makeMenubarMark(), to: "\(outDir)/menubar-mark.png", pixelSize: 150)
 print("wrote menubar-mark.png")
 
-// app icon set
 let iconset = "\(outDir)/AppIcon.iconset"
 try? FileManager.default.createDirectory(atPath: iconset, withIntermediateDirectories: true)
 let specs: [(Int, Int)] = [(16, 1), (16, 2), (32, 1), (32, 2), (128, 1), (128, 2),

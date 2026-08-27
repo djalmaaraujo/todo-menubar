@@ -11,7 +11,7 @@ func check(_ condition: Bool, _ message: String, file: StaticString = #file, lin
     }
 }
 
-let day0 = Date(timeIntervalSince1970: 1_700_000_000) // fixed reference
+let day0 = Date(timeIntervalSince1970: 1_700_000_000)
 func at(_ offset: TimeInterval) -> Date { day0.addingTimeInterval(offset) }
 
 let wsA = UUID(uuidString: "00000000-0000-0000-0000-0000000000A1")!
@@ -42,7 +42,6 @@ enum TestRunner {
 
     static func run() {
 
-// 1. addTodo appends active items, ordered by createdAt
 do {
     var s = baseState()
     check(s.addTodo("first", to: wsA, id: t1, now: at(10)), "addTodo returns true")
@@ -52,7 +51,6 @@ do {
     check(active.allSatisfy { !$0.done }, "new todos are active")
 }
 
-// addTodo rejects empty text and unknown workspace
 do {
     var s = baseState()
     check(!s.addTodo("   ", to: wsA), "empty/whitespace text rejected")
@@ -60,7 +58,6 @@ do {
     check(s.todos.isEmpty, "nothing added on rejection")
 }
 
-// 2. complete moves item from Active to History
 do {
     var s = baseState()
     _ = s.addTodo("do it", to: wsA, id: t1, now: at(10))
@@ -71,7 +68,6 @@ do {
     check(hist.flatMap(\.todos).first?.completedAt == at(30), "completedAt set")
 }
 
-// 3. deleteTodo removes from Active and from History
 do {
     var s = baseState()
     _ = s.addTodo("a", to: wsA, id: t1, now: at(10))
@@ -84,7 +80,6 @@ do {
     check(s.todos.isEmpty, "deleted from History")
 }
 
-// 4. addWorkspace appends, rejects empty
 do {
     var s = TodoState()
     check(s.addWorkspace("Alpha", now: at(0)) != nil, "addWorkspace returns workspace")
@@ -92,7 +87,6 @@ do {
     check(s.workspaces.count == 1, "only valid workspace added")
 }
 
-// 5. renameWorkspace updates, rejects empty
 do {
     var s = baseState()
     check(s.renameWorkspace(wsA, to: "Renamed"), "rename returns true")
@@ -101,7 +95,6 @@ do {
     check(s.workspace(wsA)?.name == "Renamed", "name unchanged after rejected rename")
 }
 
-// 6. deleteWorkspace cascades and resets selection
 do {
     var s = baseState()
     _ = s.addTodo("keep", to: wsB, id: t1, now: at(10))
@@ -114,7 +107,6 @@ do {
     check(s.selection == .all, "selection fell back to .all")
 }
 
-// 7. activeGrouped in ALL groups by workspace, omits empty, preserves order
 do {
     var s = baseState()
     _ = s.addWorkspace("Empty", id: UUID(), now: at(2))
@@ -125,7 +117,6 @@ do {
     check(groups.first?.todos.map(\.text) == ["w1"], "group A items")
 }
 
-// 8. historyGrouped by day, newest day first, newest item first within a day
 do {
     var s = baseState()
     let cal = Calendar(identifier: .gregorian)
@@ -143,7 +134,6 @@ do {
     check(hist.last?.todos.map(\.id) == [t1], "older day last")
 }
 
-// 9. persistence round-trip
 do {
     var s = baseState()
     _ = s.addTodo("persist me", to: wsA, id: t1, now: at(10))
@@ -154,7 +144,6 @@ do {
     check(back == s, "encode → decode yields an equal store")
 }
 
-// 10. normalizeSelection falls back to .all for a dangling workspace id
 do {
     var s = baseState()
     s.selection = .workspace(UUID())
@@ -166,7 +155,6 @@ do {
     check(s.selection == .workspace(wsA), "valid selection preserved")
 }
 
-// activeCount reflects current selection
 do {
     var s = baseState()
     _ = s.addTodo("a", to: wsA, id: t1, now: at(10))
