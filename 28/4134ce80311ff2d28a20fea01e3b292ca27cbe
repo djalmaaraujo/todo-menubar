@@ -1,0 +1,23 @@
+app/App.swift
+  s_92b197122590d1::t_1d79753c2a033d 475-476
+  s_92b197122590d1::t_1c3be23aa73cfa 16-18,28,30
+  s_92b197122590d1::t_04698b013f86bc 62,64
+  s_92b197122590d1::t_1b158eec089641 497
+  s_92b197122590d1::t_5d1edd36bb553e 257-264
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.6.24",
+  "base_commit_sha": "284134ce80311ff2d28a20fea01e3b292ca27cbe",
+  "prompts": {},
+  "sessions": {
+    "s_92b197122590d1": {
+      "agent_id": {
+        "tool": "claude",
+        "id": "4aecc2b5-ba4c-4ebf-8182-8855bac4c5d6",
+        "model": "claude-opus-4-8"
+      },
+      "human_author": "Djalma Araújo <djalma@nossomos.cc>"
+    }
+  }
+}
