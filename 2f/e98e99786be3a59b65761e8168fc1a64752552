@@ -1,0 +1,33 @@
+README.md
+  s_4af0911c747a6f::t_e3871a9c4412a8 35
+CLAUDE.md
+  s_4af0911c747a6f::t_65dfcf787e8315 21-25
+app/TodoCore.swift
+  s_4af0911c747a6f::t_94b51b66861125 94
+  s_4af0911c747a6f::t_fef21550a6d1f1 93,95-101
+app/Tests.swift
+  s_4af0911c747a6f::t_a95b83021bbe1c 169-218
+  s_4af0911c747a6f::t_19c64807ac8a4c 50
+app/App.swift
+  s_4af0911c747a6f::t_f7299debfb3678 238-243
+  s_4af0911c747a6f::t_83e04a9d16f563 263
+  s_4af0911c747a6f::t_392620c735a5d8 48-50
+  s_4af0911c747a6f::t_f7e5736f870a4a 348,351,359
+  s_4af0911c747a6f::t_6dfe5608237564 396-448
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.7.0",
+  "base_commit_sha": "2fe98e99786be3a59b65761e8168fc1a64752552",
+  "prompts": {},
+  "sessions": {
+    "s_4af0911c747a6f": {
+      "agent_id": {
+        "tool": "claude",
+        "id": "a0d5d4ec-7ae5-49da-bd3c-934c794f87f8",
+        "model": "claude-fable-5"
+      },
+      "human_author": "Djalma Araújo <djalma@nossomos.cc>"
+    }
+  }
+}
