@@ -90,6 +90,15 @@ extension TodoState {
         todos.removeAll { $0.id == todoId }
     }
 
+    mutating func moveTodo(_ todoId: UUID, before targetId: UUID?, in workspaceId: UUID) {
+        guard todoId != targetId, workspace(workspaceId) != nil,
+              let from = todos.firstIndex(where: { $0.id == todoId }) else { return }
+        var todo = todos.remove(at: from)
+        todo.workspaceId = workspaceId
+        let to = targetId.flatMap { target in todos.firstIndex { $0.id == target } } ?? todos.count
+        todos.insert(todo, at: to)
+    }
+
     @discardableResult
     mutating func addWorkspace(_ name: String, id: UUID = UUID(), now: Date = Date()) -> Workspace? {
         let trimmed = name.trimmingCharacters(in: .whitespacesAndNewlines)
@@ -132,7 +141,6 @@ extension TodoState {
 
     func activeTodos(for selection: Selection) -> [Todo] {
         todos.filter { !$0.done && matches($0, selection) }
-            .sorted { $0.createdAt < $1.createdAt }
     }
 
     func activeCount(for selection: Selection) -> Int {

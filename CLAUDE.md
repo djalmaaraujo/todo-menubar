@@ -18,6 +18,11 @@ project: `app/build.sh` compiles `app/TodoCore.swift` + `app/App.swift` with
   (`NSStatusItem` + `NSPopover`), and all the views.
 - Persistence: one JSON blob under the `UserDefaults` key `todostate.v1`. Saved
   after every mutation; loaded (and `normalizeSelection()`'d) at launch.
+- **Active order is the `todos` array position** — drag-to-reorder works by moving
+  items in the array (`moveTodo`), so `activeTodos` must never re-sort. Rows use
+  `.draggable`/`.dropDestination` (UUID string payload); a drop on a row inserts
+  before it and adopts its workspace, group headers and the end zone cover
+  into-group and to-end drops.
 
 The bottom bar's workspace selector is the only place to switch selection (there
 is no top dropdown) and it also carries New / Rename / Delete workspace. Adding a

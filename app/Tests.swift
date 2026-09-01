@@ -47,7 +47,7 @@ do {
     check(s.addTodo("first", to: wsA, id: t1, now: at(10)), "addTodo returns true")
     check(s.addTodo("second", to: wsA, id: t2, now: at(20)), "addTodo second returns true")
     let active = s.activeTodos(for: .workspace(wsA))
-    check(active.map(\.text) == ["first", "second"], "active ordered by createdAt asc")
+    check(active.map(\.text) == ["first", "second"], "active follows array order")
     check(active.allSatisfy { !$0.done }, "new todos are active")
 }
 
@@ -164,6 +164,56 @@ do {
     check(s.activeCount(for: .all) == 2, "ALL active count excludes done")
     check(s.activeCount(for: .workspace(wsB)) == 2, "workspace active count")
     check(s.activeCount(for: .workspace(wsA)) == 0, "completed leaves count")
+}
+
+do {
+    var s = baseState()
+    _ = s.addTodo("a", to: wsA, id: t1, now: at(10))
+    _ = s.addTodo("b", to: wsA, id: t2, now: at(20))
+    _ = s.addTodo("c", to: wsA, id: t3, now: at(30))
+    s.moveTodo(t3, before: t1, in: wsA)
+    check(s.activeTodos(for: .workspace(wsA)).map(\.id) == [t3, t1, t2], "moved before first")
+    s.moveTodo(t3, before: nil, in: wsA)
+    check(s.activeTodos(for: .workspace(wsA)).map(\.id) == [t1, t2, t3], "moved to end")
+    s.moveTodo(t1, before: t1, in: wsA)
+    check(s.activeTodos(for: .workspace(wsA)).map(\.id) == [t1, t2, t3], "move before itself is a no-op")
+}
+
+do {
+    var s = baseState()
+    _ = s.addTodo("a1", to: wsA, id: t1, now: at(10))
+    _ = s.addTodo("b1", to: wsB, id: t2, now: at(20))
+    _ = s.addTodo("b2", to: wsB, id: t3, now: at(30))
+    s.moveTodo(t1, before: t3, in: wsB)
+    check(s.todos.first { $0.id == t1 }?.workspaceId == wsB, "cross-move adopts target workspace")
+    check(s.activeTodos(for: .workspace(wsB)).map(\.id) == [t2, t1, t3], "cross-move lands before target")
+    check(s.activeTodos(for: .workspace(wsA)).isEmpty, "cross-move left origin workspace")
+
+    s.moveTodo(t2, before: nil, in: wsA)
+    check(s.todos.first { $0.id == t2 }?.workspaceId == wsA, "cross-move to end adopts workspace")
+    check(s.activeGrouped(for: .all).map(\.workspace.id) == [wsA, wsB], "ALL groups reflect the move")
+}
+
+do {
+    var s = baseState()
+    _ = s.addTodo("a", to: wsA, id: t1, now: at(10))
+    let before = s
+    s.moveTodo(UUID(), before: t1, in: wsA)
+    check(s == before, "unknown todo id is a no-op")
+    s.moveTodo(t1, before: t1, in: UUID())
+    check(s == before, "unknown workspace is a no-op")
+    s.moveTodo(t1, before: UUID(), in: wsA)
+    check(s.activeTodos(for: .workspace(wsA)).map(\.id) == [t1], "unknown target appends to end")
+}
+
+do {
+    var s = baseState()
+    _ = s.addTodo("a", to: wsA, id: t1, now: at(10))
+    _ = s.addTodo("b", to: wsA, id: t2, now: at(20))
+    s.moveTodo(t2, before: t1, in: wsA)
+    let data = try! JSONEncoder().encode(s)
+    let back = try! JSONDecoder().decode(TodoState.self, from: data)
+    check(back.activeTodos(for: .workspace(wsA)).map(\.id) == [t2, t1], "custom order survives round-trip")
 }
 
 do {

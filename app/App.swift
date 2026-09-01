@@ -45,6 +45,9 @@ final class TodoStore: ObservableObject {
     func addTodo(_ text: String, to workspaceId: UUID) { mutate { _ = $0.addTodo(text, to: workspaceId) } }
     func complete(_ id: UUID) { mutate { $0.complete(id) } }
     func deleteTodo(_ id: UUID) { mutate { $0.deleteTodo(id) } }
+    func moveTodo(_ id: UUID, before targetId: UUID?, in workspaceId: UUID) {
+        mutate { $0.moveTodo(id, before: targetId, in: workspaceId) }
+    }
     func renameWorkspace(_ id: UUID, to name: String) { mutate { _ = $0.renameWorkspace(id, to: name) } }
     func deleteWorkspace(_ id: UUID) { mutate { $0.deleteWorkspace(id) } }
 
@@ -232,6 +235,12 @@ struct PasteSplitField: NSViewRepresentable {
     }
 }
 
+private enum DropSpot: Equatable {
+    case before(UUID)
+    case group(UUID)
+    case end
+}
+
 private enum Overlay: Identifiable {
     case newWorkspace
     case rename(Workspace)
@@ -251,6 +260,7 @@ struct ContentView: View {
 
     @State private var tab: Tab
     @State private var overlay: Overlay?
+    @State private var dropSpot: DropSpot?
     @State private var overlayText = ""
     @FocusState private var overlayFieldFocused: Bool
 
@@ -335,9 +345,10 @@ struct ContentView: View {
                 emptyState("No tasks yet", systemImage: "checklist")
             } else {
                 ForEach(groups, id: \.workspace.id) { group in
-                    sectionHeader(group.workspace.name)
+                    groupHeader(group.workspace)
                     ForEach(group.todos) { todo in activeRow(todo) }
                 }
+                if let last = groups.last { endDropZone(in: last.workspace.id) }
             }
         } else {
             let items = store.state.activeTodos(for: store.state.selection)
@@ -345,6 +356,7 @@ struct ContentView: View {
                 emptyState("No tasks yet", systemImage: "checklist")
             } else {
                 ForEach(items) { todo in activeRow(todo) }
+                if let target = effectiveTarget { endDropZone(in: target) }
             }
         }
     }
@@ -381,6 +393,59 @@ struct ContentView: View {
         }
         .padding(.vertical, 7)
         .padding(.horizontal, 14)
+        .contentShape(Rectangle())
+        .draggable(todo.id.uuidString)
+        .dropDestination(for: String.self) { items, _ in
+            drop(items, before: todo.id, in: todo.workspaceId)
+        } isTargeted: { setDropSpot(.before(todo.id), $0) }
+        .overlay(alignment: .top) {
+            if dropSpot == .before(todo.id) { insertionLine }
+        }
+    }
+
+    private func groupHeader(_ ws: Workspace) -> some View {
+        sectionHeader(ws.name)
+            .frame(maxWidth: .infinity, alignment: .leading)
+            .contentShape(Rectangle())
+            .background(dropSpot == .group(ws.id) ? Color.accentIndigo.opacity(0.12) : .clear)
+            .dropDestination(for: String.self) { items, _ in
+                drop(items, before: store.state.activeTodos(for: .workspace(ws.id)).first?.id,
+                     in: ws.id)
+            } isTargeted: { setDropSpot(.group(ws.id), $0) }
+    }
+
+    private func endDropZone(in workspaceId: UUID) -> some View {
+        Color.clear
+            .frame(maxWidth: .infinity, minHeight: 44)
+            .contentShape(Rectangle())
+            .dropDestination(for: String.self) { items, _ in
+                drop(items, before: nil, in: workspaceId)
+            } isTargeted: { setDropSpot(.end, $0) }
+            .overlay(alignment: .top) {
+                if dropSpot == .end { insertionLine }
+            }
+    }
+
+    private var insertionLine: some View {
+        Rectangle()
+            .fill(Color.accentIndigo)
+            .frame(height: 2)
+            .padding(.horizontal, 14)
+    }
+
+    private func setDropSpot(_ spot: DropSpot, _ targeted: Bool) {
+        if targeted {
+            dropSpot = spot
+        } else if dropSpot == spot {
+            dropSpot = nil
+        }
+    }
+
+    private func drop(_ items: [String], before targetId: UUID?, in workspaceId: UUID) -> Bool {
+        guard let raw = items.first, let id = UUID(uuidString: raw) else { return false }
+        store.moveTodo(id, before: targetId, in: workspaceId)
+        dropSpot = nil
+        return true
     }
 
     private func historyRow(_ todo: Todo) -> some View {
