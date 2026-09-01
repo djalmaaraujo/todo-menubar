@@ -37,6 +37,7 @@ Click the menu bar icon, jot a task, hit enter. That's the whole app.
 - **Pin it open** — the pin next to the tabs keeps the popover on screen (it won't close on click-away) until you unpin it.
 - **Remembers your draft** — a half-typed task survives closing and reopening the popover, even across relaunches.
 - **Menu bar count** — the icon shows how many active tasks the current selection has.
+- **Quit from the icon** — right-click the menu bar icon for a Quit menu.
 
 Create a workspace with the **+ New workspace…** item in the selector; rename or delete it from the same menu (deleting takes its tasks and history with it).
 

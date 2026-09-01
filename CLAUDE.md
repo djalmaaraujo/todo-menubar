@@ -88,6 +88,10 @@ signal that the tap is still stale.
   so no SwiftUI `LocalizedStringKey` thousands-separator issue).
 - **Sheets/`confirmationDialog` are unreliable inside the popover.**
   New/rename/delete-workspace are drawn as an in-popover overlay card, not a sheet.
+- **Right-click Quit menu: assign `statusItem.menu` only for the click.** A permanently
+  set menu hijacks left-click and the popover never opens — `showContextMenu` sets the
+  menu, `performClick`s, then nils it. The button sends on `[.leftMouseUp, .rightMouseUp]`
+  and branches on `NSApp.currentEvent`.
 - **The badge updates via Combine** — `AppDelegate` sinks `store.$state`/`$errorText`
   on `RunLoop.main` (so it reads the post-change value) and refreshes the button.
 - **Multi-line paste = one todo per line.** The input is a `PasteInterceptField`
