@@ -1,0 +1,23 @@
+app/App.swift
+  s_a3a5256cddc85e::t_147a5856f59c51 25,55-60,347
+app/Tests.swift
+  s_a3a5256cddc85e::t_147a5856f59c51 224
+README.md
+  s_a3a5256cddc85e::t_147a5856f59c51 36
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.7.4",
+  "base_commit_sha": "b79a0368fefebc8fac0b598ce3c3a112660316c4",
+  "prompts": {},
+  "sessions": {
+    "s_a3a5256cddc85e": {
+      "agent_id": {
+        "tool": "claude",
+        "id": "812ff3de-a6ba-49db-91e5-a09dd347f6b9",
+        "model": "claude-opus-5"
+      },
+      "human_author": "Djalma Araújo <djalma@nossomos.cc>"
+    }
+  }
+}
