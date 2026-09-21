@@ -33,6 +33,7 @@ Click the menu bar icon, jot a task, hit enter. That's the whole app.
 - **Active / History tabs** — checking a task off moves it out of Active and into a date-grouped **History** timeline. Delete from either.
 - **Add, complete, delete** — a circle to complete, a trash can to remove. Nothing else to learn.
 - **Drag to reorder** — grab a task and drop it where it belongs. In the All view, dropping onto another workspace's group (or its header) moves the task there.
+- **Copy a task** — the copy icon on a row puts its text on the clipboard. Right-click a task for a menu with Copy and Remove, plus Complete on an active one.
 - **Paste a list, get a list** — paste multi-line text and each line becomes its own task, in one shot. Leading bullets (`- `, `* `, `• `) are stripped automatically.
 - **Pin it open** — the pin next to the tabs keeps the popover on screen (it won't close on click-away) until you unpin it.
 - **Remembers your draft** — a half-typed task survives closing and reopening the popover, even across relaunches.

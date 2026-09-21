@@ -217,6 +217,16 @@ do {
 }
 
 do {
+    var s = baseState()
+    _ = s.addTodo("  buy milk  ", to: wsA, id: t1, now: at(10))
+    _ = s.addTodo("ship it", to: wsA, id: t2, now: at(20))
+    s.complete(t2, now: at(30))
+    check(s.todoText(t1) == "buy milk", "todoText returns the stored text")
+    check(s.todoText(t2) == "ship it", "todoText works for completed todos")
+    check(s.todoText(UUID()) == nil, "todoText returns nil for an unknown id")
+}
+
+do {
     check(TodoState.todoLines(from: "single") == ["single"], "single line stays one item")
     check(TodoState.todoLines(from: "a\nb\nc") == ["a", "b", "c"], "one item per newline")
     check(TodoState.todoLines(from: "  x  \n\n  y \n") == ["x", "y"], "trims and drops blank lines")

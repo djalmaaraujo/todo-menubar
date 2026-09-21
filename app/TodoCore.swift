@@ -71,6 +71,10 @@ extension TodoState {
         workspaces.first { $0.id == id }
     }
 
+    func todoText(_ id: UUID) -> String? {
+        todos.first { $0.id == id }?.text
+    }
+
     @discardableResult
     mutating func addTodo(_ text: String, to workspaceId: UUID, id: UUID = UUID(),
                           now: Date = Date()) -> Bool {

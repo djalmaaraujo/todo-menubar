@@ -15,15 +15,18 @@ final class TodoStore: ObservableObject {
     @Published var pinned: Bool { didSet { defaults.set(pinned, forKey: pinnedKey) } }
 
     private let defaults: UserDefaults
+    private let pasteboard: NSPasteboard
     private let key = "todostate.v1"
     private let backupKey = "todostate.v1.unreadable-backup"
     private let draftKey = "draft.v1"
     private let pinnedKey = "pinned.v1"
     private let readErrorText = "Could not read saved todos (a backup was kept)"
     private let saveErrorText = "Could not save todos"
+    private let copyErrorText = "Could not copy the task"
 
-    init(defaults: UserDefaults = .standard) {
+    init(defaults: UserDefaults = .standard, pasteboard: NSPasteboard = .general) {
         self.defaults = defaults
+        self.pasteboard = pasteboard
         self.draft = defaults.string(forKey: draftKey) ?? ""
         self.pinned = defaults.bool(forKey: pinnedKey)
         if let data = defaults.data(forKey: key) {
@@ -44,6 +47,19 @@ final class TodoStore: ObservableObject {
     func select(_ selection: Selection) { mutate { $0.selection = selection } }
     func addTodo(_ text: String, to workspaceId: UUID) { mutate { _ = $0.addTodo(text, to: workspaceId) } }
     func complete(_ id: UUID) { mutate { $0.complete(id) } }
+
+    @discardableResult
+    func copyToPasteboard(_ id: UUID) -> Bool {
+        guard let text = state.todoText(id) else { return false }
+        pasteboard.clearContents()
+        guard pasteboard.setString(text, forType: .string) else {
+            errorText = copyErrorText
+            return false
+        }
+        if errorText == copyErrorText { errorText = nil }
+        return true
+    }
+
     func deleteTodo(_ id: UUID) { mutate { $0.deleteTodo(id) } }
     func moveTodo(_ id: UUID, before targetId: UUID?, in workspaceId: UUID) {
         mutate { $0.moveTodo(id, before: targetId, in: workspaceId) }
@@ -282,6 +298,8 @@ struct ContentView: View {
     @State private var overlay: Overlay?
     @State private var dropSpot: DropSpot?
     @State private var overlayText = ""
+    @State private var copiedId: UUID?
+    @State private var copyResetTask: Task<Void, Never>?
     @FocusState private var overlayFieldFocused: Bool
 
     private var draftBinding: Binding<String> {
@@ -326,6 +344,7 @@ struct ContentView: View {
 
             if overlay != nil { overlayCard }
         }
+        .onDisappear { copyResetTask?.cancel() }
         .frame(width: 400)
         .tint(.accentIndigo)
     }
@@ -409,6 +428,7 @@ struct ContentView: View {
 
             Spacer(minLength: 8)
 
+            copyButton(todo)
             trashButton(todo)
         }
         .padding(.vertical, 7)
@@ -421,6 +441,7 @@ struct ContentView: View {
         .overlay(alignment: .top) {
             if dropSpot == .before(todo.id) { insertionLine }
         }
+        .contextMenu { todoMenu(todo, canComplete: true) }
     }
 
     private func groupHeader(_ ws: Workspace) -> some View {
@@ -486,10 +507,47 @@ struct ContentView: View {
                     .background(Color.accentIndigo.opacity(0.14), in: Capsule())
             }
             Spacer(minLength: 8)
+            copyButton(todo)
             trashButton(todo)
         }
         .padding(.vertical, 7)
         .padding(.horizontal, 14)
+        .contentShape(Rectangle())
+        .contextMenu { todoMenu(todo, canComplete: false) }
+    }
+
+    @ViewBuilder
+    private func todoMenu(_ todo: Todo, canComplete: Bool) -> some View {
+        if canComplete {
+            Button { store.complete(todo.id) } label: { Label("Complete", systemImage: "checkmark.circle") }
+        }
+        Button { copy(todo) } label: { Label("Copy", systemImage: "doc.on.doc") }
+        Divider()
+        Button(role: .destructive) { store.deleteTodo(todo.id) } label: {
+            Label("Remove", systemImage: "trash")
+        }
+    }
+
+    private func copyButton(_ todo: Todo) -> some View {
+        Button { copy(todo) } label: {
+            Image(systemName: copiedId == todo.id ? "checkmark" : "doc.on.doc")
+                .font(.system(size: 12))
+                .foregroundStyle(copiedId == todo.id ? Color.accentIndigo : Color.secondary)
+                .frame(width: 16)
+        }
+        .buttonStyle(.plain)
+        .help("Copy")
+    }
+
+    private func copy(_ todo: Todo) {
+        guard store.copyToPasteboard(todo.id) else { return }
+        copiedId = todo.id
+        copyResetTask?.cancel()
+        copyResetTask = Task { @MainActor in
+            try? await Task.sleep(nanoseconds: 1_200_000_000)
+            guard !Task.isCancelled else { return }
+            if copiedId == todo.id { copiedId = nil }
+        }
     }
 
     private func trashButton(_ todo: Todo) -> some View {
