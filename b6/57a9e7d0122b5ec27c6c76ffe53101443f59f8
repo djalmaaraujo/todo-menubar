@@ -1,0 +1,21 @@
+app/Info.plist
+  s_a3a5256cddc85e::t_70e2bb5ec38827 14,16
+CLAUDE.md
+  s_a3a5256cddc85e::t_a6b16c4916d1dd 91-93
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.7.4",
+  "base_commit_sha": "b657a9e7d0122b5ec27c6c76ffe53101443f59f8",
+  "prompts": {},
+  "sessions": {
+    "s_a3a5256cddc85e": {
+      "agent_id": {
+        "tool": "claude",
+        "id": "812ff3de-a6ba-49db-91e5-a09dd347f6b9",
+        "model": "claude-opus-5"
+      },
+      "human_author": "Djalma Araújo <djalma@nossomos.cc>"
+    }
+  }
+}
