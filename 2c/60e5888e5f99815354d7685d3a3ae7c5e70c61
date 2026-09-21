@@ -1,0 +1,19 @@
+.gitignore
+  s_a3a5256cddc85e::t_234b1980bb24b2 5
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.7.4",
+  "base_commit_sha": "2c60e5888e5f99815354d7685d3a3ae7c5e70c61",
+  "prompts": {},
+  "sessions": {
+    "s_a3a5256cddc85e": {
+      "agent_id": {
+        "tool": "claude",
+        "id": "812ff3de-a6ba-49db-91e5-a09dd347f6b9",
+        "model": "claude-opus-5"
+      },
+      "human_author": "Djalma Araújo <djalma@nossomos.cc>"
+    }
+  }
+}
