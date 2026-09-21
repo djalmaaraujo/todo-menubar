@@ -88,6 +88,9 @@ signal that the tap is still stale.
   so no SwiftUI `LocalizedStringKey` thousands-separator issue).
 - **Sheets/`confirmationDialog` are unreliable inside the popover.**
   New/rename/delete-workspace are drawn as an in-popover overlay card, not a sheet.
+- **A row's `.contextMenu` DOES work inside the popover** — unlike sheets. An `NSMenu`
+  tracking loop never dismisses the `.transient` popover, verified with a real
+  right-click and in an offscreen harness. Copy/Complete/Remove live there.
 - **Right-click Quit menu: assign `statusItem.menu` only for the click.** A permanently
   set menu hijacks left-click and the popover never opens — `showContextMenu` sets the
   menu, `performClick`s, then nils it. The button sends on `[.leftMouseUp, .rightMouseUp]`
